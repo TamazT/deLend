@@ -1,31 +1,32 @@
-// We require the Hardhat Runtime Environment explicitly here. This is optional
-// but useful for running the script in a standalone fashion through `node <script>`.
-//
-// You can also run a script with `npx hardhat run <script>`. If you do that, Hardhat
-// will compile your contracts, add the Hardhat Runtime Environment's members to the
-// global scope, and execute the script.
-const hre = require("hardhat");
+import * as ethers from "ethers"
+import { network } from "hardhat"
+import { networkConfig } from "./helper-hardhat-config.js"
 
 async function main() {
-  const currentTimestampInSeconds = Math.round(Date.now() / 1000);
-  const ONE_YEAR_IN_SECS = 365 * 24 * 60 * 60;
-  const unlockTime = currentTimestampInSeconds + ONE_YEAR_IN_SECS;
+    const { deployer } = await ethers.getNamedAccounts()
+    let chainid = network.config.chainId
+    if ((chainid = 5)) {
+        let poolAddress = networkConfig[5].poolAddress
+    } else if ((chainid = 10)) {
+        let poolAddress = networkConfig[10].poolAddress
+    } else if ((chainid = 137)) {
+        let poolAddress = networkConfig[137].poolAddress
+    } else {
+        let poolAddress = networkConfig[137].poolAddress
+    }
 
-  const lockedAmount = hre.ethers.utils.parseEther("1");
-
-  const Lock = await hre.ethers.getContractFactory("Lock");
-  const lock = await Lock.deploy(unlockTime, { value: lockedAmount });
-
-  await lock.deployed();
-
-  console.log(
-    `Lock with 1 ETH and unlock timestamp ${unlockTime} deployed to ${lock.address}`
-  );
+    const DepositAAVE = await ethers.deploy("DepositAAVE", {
+        from: deployer,
+        args: [poolAddress],
+        log: true,
+        waitConfirmations: network.config.blockConfirmations,
+    })
+    if (chainId !== 31337 && process.env.ETHERSCAN_API_KEY) {
+        await verify(DepositAAVE.address, [poolAddress])
+    }
 }
 
-// We recommend this pattern to be able to use async/await everywhere
-// and properly handle errors.
 main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+    console.error(error)
+    process.exitCode = 1
+})
