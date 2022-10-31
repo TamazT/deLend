@@ -1,27 +1,32 @@
-import * as ethers from "ethers"
-import { network } from "hardhat"
-import { networkConfig } from "./helper-hardhat-config.js"
+const { getNamedAccounts, deployments, network } = require("hardhat")
+const { verify } = require("../utils/verify")
+const { networkConfig } = require("../helper-hardhat-config")
 
 async function main() {
-    const { deployer } = await ethers.getNamedAccounts()
-    let chainid = network.config.chainId
+    const { deploy, log } = deployments
+    const deployer = process.env.PRIVATE_KEY
+    let chainid = network.config.chainid
+    console.log(chainid, networkConfig[5].poolAddress, networkConfig[10].poolAddress)
     if ((chainid = 5)) {
-        let poolAddress = networkConfig[5].poolAddress
+        poolAddress = networkConfig[5].poolAddress
     } else if ((chainid = 10)) {
-        let poolAddress = networkConfig[10].poolAddress
+        poolAddress = networkConfig[10].poolAddress
     } else if ((chainid = 137)) {
-        let poolAddress = networkConfig[137].poolAddress
+        poolAddress = networkConfig[137].poolAddress
     } else {
-        let poolAddress = networkConfig[137].poolAddress
+        poolAddress = networkConfig[137].poolAddress
     }
+    log("----------------------------------------------------")
+    log("Deploying FundMe and waiting for confirmations...")
 
-    const DepositAAVE = await ethers.deploy("DepositAAVE", {
+    const DepositAAVE = await deploy("DepositAAVE", {
         from: deployer,
         args: [poolAddress],
         log: true,
         waitConfirmations: network.config.blockConfirmations,
     })
-    if (chainId !== 31337 && process.env.ETHERSCAN_API_KEY) {
+    console.log(await DepositAAVE.address)
+    if (chainid !== 31337 && process.env.ETHERSCAN_API_KEY) {
         await verify(DepositAAVE.address, [poolAddress])
     }
 }

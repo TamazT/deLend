@@ -109,6 +109,3 @@ function getHigApy(a) {
     }
     return [max, coinName]
 }
-const aga = await getAPYPOL()
-console.log(aga)
-console.log(getHigApy(aga))

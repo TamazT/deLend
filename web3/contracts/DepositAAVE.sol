@@ -4,7 +4,7 @@ pragma solidity ^0.8.10;
 import {IPool} from "@aave/core-v3/contracts/interfaces/IPool.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-contract Lock {
+contract DepositAAVE {
     IPool public immutable poolAAVE;
     uint16 public Ref;
     mapping(address => uint256) depositBalances;
@@ -49,7 +49,7 @@ contract Lock {
             "Not enough balance"
         );
         // withdraw amount of tokens from aave to userAddress
-        poolAAVE.withdraw(address(tokenAddress), amountWithdrow, msg.sender);
+        poolAAVE.withdraw(address(token), amountWithdrow, msg.sender);
         depositBalances[msg.sender] -= amountWithdrow;
     }
 }
