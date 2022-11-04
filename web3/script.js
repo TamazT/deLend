@@ -8,6 +8,7 @@ import {
     polContract,
 } from "./constants.js"
 import * as ethers from "ethers"
+import { TASK_COMPILE_SOLIDITY_EMIT_ARTIFACTS } from "hardhat/builtin-tasks/task-names.js"
 let providerETH = new ethers.providers.getDefaultProvider(
     "https://eth-mainnet.g.alchemy.com/v2/ErZy1DQKTwWpqN582ikeaixCn0s7V-nY"
 )
@@ -93,19 +94,35 @@ async function getAPYPOL() {
 function getHigApy(a) {
     let max = Math.max.apply(Math, a)
     let index = a.findIndex((i) => i == max)
-    let coinName
-    if ((index = 1)) {
+    console.log(index)
+    let coinName = ""
+    let chainID = ""
+    if (index == 0 || index == 6 || index == 9) {
         coinName = "USDT"
-    } else if ((index = 2)) {
+    } else if (index == 1 || index == 7 || index == 10) {
         coinName = "USDC"
-    } else if ((index = 3)) {
+    } else if (index == 2 || index == 8 || index == 11) {
         coinName = "DAI"
-    } else if ((index = 4)) {
+    } else if (index == 3) {
         coinName = "BUSD"
-    } else if ((index = 5)) {
+    } else if (index == 4) {
         coinName = "LUSD"
-    } else if ((index = 6)) {
-        coinName = "ETH"
+    } else {
+        coinName = "WETH"
     }
-    return [max, coinName]
+    if ((index >= 0) & (index < 6)) {
+        chainID = "ETH"
+    } else if ((index > 5) & (index < 9)) {
+        chainID = "OPT"
+    } else {
+        chainID = "POL"
+    }
+
+    return [max, coinName, chainID]
 }
+const arr = await getAPYETH()
+const arr1 = arr.concat(await getAPYOPT())
+//console.log(arr1)
+const arr2 = arr1.concat(await getAPYPOL())
+//console.log(arr2)
+console.log(getHigApy(arr2))
