@@ -7,6 +7,7 @@
     "test": "test"
   },
   "dependencies": {
+    "@aave/core-v3": "^1.16.2",
     "@nomicfoundation/hardhat-toolbox": "^2.0.0",
     "@nomiclabs/hardhat-waffle": "^2.0.3",
     "@openzeppelin/contracts": "^4.7.3",
@@ -182,7 +183,7 @@
     "handlebars": "^4.7.7",
     "har-schema": "^2.0.0",
     "har-validator": "^5.1.5",
-    "hardhat": "^2.12.1",
+    "hardhat": "^2.12.2",
     "hardhat-deploy": "^0.11.18",
     "has": "^1.0.3",
     "has-bigints": "^1.0.2",
@@ -456,6 +457,5 @@
     "test": "mocha"
   },
   "author": "",
-  "license": "ISC",
-  "type": "module"
+  "license": "ISC"
 }

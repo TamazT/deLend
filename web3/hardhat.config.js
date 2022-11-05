@@ -6,9 +6,10 @@ require("solidity-coverage")
 require("dotenv").config()
 require("@nomiclabs/hardhat-etherscan")
 
-const RINKEBY_RPC_URL = process.env.RINKEBY_RPC_URL
 const PRIVATE_KEY = process.env.PRIVATE_KEY
 const GOERLI_RPC_URL = process.env.GOERLI_RPC_URL
+const POLYGON_RPC_URL = process.env.POLYGON_RPC_URL
+const OPTIMISM_RPC_URL = process.env.OPTIMISM_RPC_URL
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY
 module.exports = {
     defaultNetwork: "hardhat",
@@ -29,13 +30,13 @@ module.exports = {
         polygon: {
             chainid: 137,
             blockConfirmations: 6,
-            url: GOERLI_RPC_URL,
+            url: POLYGON_RPC_URL,
             accounts: [PRIVATE_KEY],
         },
-        optimizm: {
+        optimism: {
             chainid: 10,
             blockConfirmations: 6,
-            url: GOERLI_RPC_URL,
+            url: OPTIMISM_RPC_URL,
             accounts: [PRIVATE_KEY],
         },
     },
