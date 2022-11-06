@@ -21,9 +21,12 @@ contract deLend is Ownable {
 
     uint16 private Ref;
 
-    event Successfull(address indexed user, address indexed token, uint256 amount);
+    event Successfull(
+        address indexed user,
+        address indexed token,
+        uint256 amount
+    );
 
-    // errors
     error InsufficientAllowance(address tokenAddress, uint256 supplyAmount);
     error InsufficientBalance(uint256 balance, uint256 supplyAmount);
 
@@ -57,36 +60,59 @@ contract deLend is Ownable {
         address tokenAddressIn,
         uint24 _fee
     ) external isUser returns (uint256 amountOut) {
-        uint256 _allowance = IERC20(tokenAddressOut).allowance(msg.sender, address(this));
+        uint256 _allowance = IERC20(tokenAddressOut).allowance(
+            msg.sender,
+            address(this)
+        );
         uint256 _balance = IERC20(tokenAddressOut).balanceOf(msg.sender);
         if (_allowance < amountIn) {
-            revert InsufficientAllowance({tokenAddress: tokenAddressOut, supplyAmount: amountIn});
+            revert InsufficientAllowance({
+                tokenAddress: tokenAddressOut,
+                supplyAmount: amountIn
+            });
         }
         if (_balance < amountIn) {
-            revert InsufficientBalance({balance: _balance, supplyAmount: amountIn});
+            revert InsufficientBalance({
+                balance: _balance,
+                supplyAmount: amountIn
+            });
         }
         // send input token to contract
-        TransferHelper.safeTransferFrom(tokenAddressOut, msg.sender, address(this), amountIn);
+        TransferHelper.safeTransferFrom(
+            tokenAddressOut,
+            msg.sender,
+            address(this),
+            amountIn
+        );
         amountIn = (amountIn * 99) / 100;
         if (tokenAddressOut != tokenAddressIn) {
             // Approve the router to spend input token.
-            TransferHelper.safeApprove(tokenAddressOut, address(swapRouter), amountIn);
+            TransferHelper.safeApprove(
+                tokenAddressOut,
+                address(swapRouter),
+                amountIn
+            );
             //SWAP parameters
-            ISwapRouter.ExactInputSingleParams memory params = ISwapRouter.ExactInputSingleParams({
-                tokenIn: tokenAddressOut,
-                tokenOut: tokenAddressIn,
-                fee: _fee, //3000 standartd
-                recipient: address(this),
-                deadline: block.timestamp,
-                amountIn: amountIn,
-                amountOutMinimum: 0,
-                sqrtPriceLimitX96: 0
-            });
+            ISwapRouter.ExactInputSingleParams memory params = ISwapRouter
+                .ExactInputSingleParams({
+                    tokenIn: tokenAddressOut,
+                    tokenOut: tokenAddressIn,
+                    fee: _fee, //3000 standartd
+                    recipient: address(this),
+                    deadline: block.timestamp,
+                    amountIn: amountIn,
+                    amountOutMinimum: 0,
+                    sqrtPriceLimitX96: 0
+                });
             // The call to exactInputSingle executes the swap.
             amountOut = swapRouter.exactInputSingle(params);
         }
         //approve to deposit token into aave contract
-        TransferHelper.safeApprove(tokenAddressIn, address(poolAAVE), amountOut);
+        TransferHelper.safeApprove(
+            tokenAddressIn,
+            address(poolAAVE),
+            amountOut
+        );
         // deposit liquidity in Aave
         poolAAVE.supply(tokenAddressIn, amountOut, msg.sender, Ref);
         emit Successfull(msg.sender, tokenAddressIn, amountOut);
@@ -99,28 +125,39 @@ contract deLend is Ownable {
         returns (uint256 amountOut)
     {
         // send ETH to contract
-        (bool sent, bytes memory data) = payable(address(this)).call{value: msg.value}("");
+        (bool sent, bytes memory data) = payable(address(this)).call{
+            value: msg.value
+        }("");
         require(sent, "Failed to send Ether");
         uint256 amountIn = msg.value - deLendCommission();
         // wrap ETH
         WETH9.deposit{value: amountIn}();
         // Approve the router to spend WETH.
-        TransferHelper.safeApprove(address(WETH9), address(swapRouter), amountIn);
+        TransferHelper.safeApprove(
+            address(WETH9),
+            address(swapRouter),
+            amountIn
+        );
         //SWAP parameters
-        ISwapRouter.ExactInputSingleParams memory params = ISwapRouter.ExactInputSingleParams({
-            tokenIn: address(WETH9),
-            tokenOut: tokenAddressIn,
-            fee: _fee, //3000 standartd
-            recipient: address(this),
-            deadline: block.timestamp,
-            amountIn: amountIn,
-            amountOutMinimum: 0,
-            sqrtPriceLimitX96: 0
-        });
+        ISwapRouter.ExactInputSingleParams memory params = ISwapRouter
+            .ExactInputSingleParams({
+                tokenIn: address(WETH9),
+                tokenOut: tokenAddressIn,
+                fee: _fee, //3000 standartd
+                recipient: address(this),
+                deadline: block.timestamp,
+                amountIn: amountIn,
+                amountOutMinimum: 0,
+                sqrtPriceLimitX96: 0
+            });
         // The call to exactInputSingle executes the swap.
         amountOut = swapRouter.exactInputSingle(params);
         //approve to deposit token into aave contract
-        TransferHelper.safeApprove(tokenAddressIn, address(poolAAVE), amountOut);
+        TransferHelper.safeApprove(
+            tokenAddressIn,
+            address(poolAAVE),
+            amountOut
+        );
         // deposit liquidity in Aave
         poolAAVE.supply(tokenAddressIn, amountOut, msg.sender, Ref);
         emit Successfull(msg.sender, tokenAddressIn, amountOut);
@@ -132,7 +169,10 @@ contract deLend is Ownable {
         address aTokenAddress,
         uint256 amountWithdrow
     ) external isUser {
-        uint256 _allowance = IERC20(aTokenAddress).allowance(msg.sender, address(this));
+        uint256 _allowance = IERC20(aTokenAddress).allowance(
+            msg.sender,
+            address(this)
+        );
         uint256 _balance = IERC20(aTokenAddress).balanceOf(msg.sender);
         if (_allowance < amountWithdrow) {
             revert InsufficientAllowance({
@@ -141,10 +181,18 @@ contract deLend is Ownable {
             });
         }
         if (_balance < amountWithdrow) {
-            revert InsufficientBalance({balance: _balance, supplyAmount: amountWithdrow});
+            revert InsufficientBalance({
+                balance: _balance,
+                supplyAmount: amountWithdrow
+            });
         }
         //send aToken to this contract
-        TransferHelper.safeTransferFrom(aTokenAddress, msg.sender, address(this), amountWithdrow);
+        TransferHelper.safeTransferFrom(
+            aTokenAddress,
+            msg.sender,
+            address(this),
+            amountWithdrow
+        );
         // withdraw amount of tokens from aave to userAddress
         poolAAVE.withdraw(tokenAddress, amountWithdrow, msg.sender);
         emit Successfull(msg.sender, tokenAddress, amountWithdrow);
@@ -169,7 +217,9 @@ contract deLend is Ownable {
     }
 
     function withdrawETH() public onlyOwner {
-        (bool sent, bytes memory data) = payable(msg.sender).call{value: address(this).balance}("");
+        (bool sent, bytes memory data) = payable(msg.sender).call{
+            value: address(this).balance
+        }("");
         require(sent, "Failed to send Ether");
     }
 
