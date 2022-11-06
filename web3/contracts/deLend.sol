@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.10;
 
 import "../node_modules/@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
@@ -7,14 +7,11 @@ import "../node_modules/@aave/core-v3/contracts/interfaces/IPoolAddressesProvide
 import "../node_modules/@aave/core-v3/contracts/interfaces/IPool.sol";
 import "../node_modules/@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 import "../node_modules/@openzeppelin/contracts/access/Ownable.sol";
-
-interface IWETH9 {
-    function deposit() external payable;
-}
+import "./interfaces/IWETH.sol";
 
 contract deLend is Ownable {
     ISwapRouter private immutable swapRouter; // 0xE592427A0AEce92De3Edee1F18E0157C05861564
-    IWETH9 private immutable WETH9; // 0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6
+    IWETH private immutable WETH; // 0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6
     IPoolAddressesProvider private immutable ADDRESSES_PROVIDER; // 0xc4dCB5126a3AfEd129BC3668Ea19285A9f56D15D
     IPool private immutable poolAAVE; //0x368EedF3f56ad10b9bC57eed4Dac65B26Bb667f6
     AggregatorV3Interface private immutable priceFeed; // 0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e
@@ -32,12 +29,12 @@ contract deLend is Ownable {
 
     constructor(
         ISwapRouter _swapRouter,
-        IWETH9 _WETH9,
+        IWETH _WETH,
         IPoolAddressesProvider _ADDRESSES_PROVIDER,
         AggregatorV3Interface _priceFeed
     ) {
         swapRouter = _swapRouter;
-        WETH9 = _WETH9;
+        WETH = _WETH;
         priceFeed = _priceFeed;
         ADDRESSES_PROVIDER = _ADDRESSES_PROVIDER;
         poolAAVE = IPool(ADDRESSES_PROVIDER.getPool());
@@ -131,17 +128,17 @@ contract deLend is Ownable {
         require(sent, "Failed to send Ether");
         uint256 amountIn = msg.value - deLendCommission();
         // wrap ETH
-        WETH9.deposit{value: amountIn}();
+        WETH.deposit{value: amountIn}();
         // Approve the router to spend WETH.
         TransferHelper.safeApprove(
-            address(WETH9),
+            address(WETH),
             address(swapRouter),
             amountIn
         );
         //SWAP parameters
         ISwapRouter.ExactInputSingleParams memory params = ISwapRouter
             .ExactInputSingleParams({
-                tokenIn: address(WETH9),
+                tokenIn: address(WETH),
                 tokenOut: tokenAddressIn,
                 fee: _fee, //3000 standartd
                 recipient: address(this),
@@ -212,7 +209,7 @@ contract deLend is Ownable {
 
     function deLendCommission() public view returns (uint256) {
         uint256 price = uint256(getLatestPrice());
-        uint256 deLendFee = (500000000 * 1 ether) / price;
+        uint256 deLendFee = (100000000 * 1 ether) / price;
         return deLendFee;
     }
 
