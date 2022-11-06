@@ -1,28 +1,54 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.10;
 
-import {ISwapRouter} from "../node_modules/@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
+import "../node_modules/@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 import "../node_modules/@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol";
-import {IPool} from "../node_modules/@aave/core-v3/contracts/interfaces/IPool.sol";
+import "../node_modules/@aave/core-v3/contracts/interfaces/IPoolAddressesProvider.sol";
+import "../node_modules/@aave/core-v3/contracts/interfaces/IPool.sol";
+import "../node_modules/@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
+import "../node_modules/@openzeppelin/contracts/access/Ownable.sol";
 
 interface IWETH9 {
     function deposit() external payable;
 }
 
-contract deLend {
-    IPool public immutable poolAAVE;
-    uint16 public Ref;
-    ISwapRouter public swapRouter; // 0xE592427A0AEce92De3Edee1F18E0157C05861564
-    IWETH9 public WETH9; // 0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6
+contract deLend is Ownable {
+    ISwapRouter private immutable swapRouter; // 0xE592427A0AEce92De3Edee1F18E0157C05861564
+    IWETH9 private immutable WETH9; // 0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6
+    IPoolAddressesProvider private immutable ADDRESSES_PROVIDER; // 0xc4dCB5126a3AfEd129BC3668Ea19285A9f56D15D
+    IPool private immutable poolAAVE; //0x368EedF3f56ad10b9bC57eed4Dac65B26Bb667f6
+    AggregatorV3Interface private immutable priceFeed; // 0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e
+
+    uint16 private Ref;
+
+    event Successfull(address indexed user, address indexed token, uint256 amount);
+
+    // errors
+    error InsufficientAllowance(address tokenAddress, uint256 supplyAmount);
+    error InsufficientBalance(uint256 balance, uint256 supplyAmount);
 
     constructor(
         ISwapRouter _swapRouter,
         IWETH9 _WETH9,
-        address poolAddress
+        IPoolAddressesProvider _ADDRESSES_PROVIDER,
+        AggregatorV3Interface _priceFeed
     ) {
         swapRouter = _swapRouter;
         WETH9 = _WETH9;
-        poolAAVE = IPool(poolAddress); //0x368EedF3f56ad10b9bC57eed4Dac65B26Bb667f6
+        priceFeed = _priceFeed;
+        ADDRESSES_PROVIDER = _ADDRESSES_PROVIDER;
+        poolAAVE = IPool(ADDRESSES_PROVIDER.getPool());
+    }
+
+    modifier isUser() {
+        uint256 size;
+        address _user = msg.sender;
+        assembly {
+            size := extcodesize(_user)
+        }
+        if (size == 0) {
+            _;
+        }
     }
 
     function supplyFromToken(
@@ -30,9 +56,18 @@ contract deLend {
         address tokenAddressOut,
         address tokenAddressIn,
         uint24 _fee
-    ) external returns (uint256 amountOut) {
+    ) external isUser returns (uint256 amountOut) {
+        uint256 _allowance = IERC20(tokenAddressOut).allowance(msg.sender, address(this));
+        uint256 _balance = IERC20(tokenAddressOut).balanceOf(msg.sender);
+        if (_allowance < amountIn) {
+            revert InsufficientAllowance({tokenAddress: tokenAddressOut, supplyAmount: amountIn});
+        }
+        if (_balance < amountIn) {
+            revert InsufficientBalance({balance: _balance, supplyAmount: amountIn});
+        }
         // send input token to contract
         TransferHelper.safeTransferFrom(tokenAddressOut, msg.sender, address(this), amountIn);
+        amountIn = (amountIn * 99) / 100;
         if (tokenAddressOut != tokenAddressIn) {
             // Approve the router to spend input token.
             TransferHelper.safeApprove(tokenAddressOut, address(swapRouter), amountIn);
@@ -54,20 +89,23 @@ contract deLend {
         TransferHelper.safeApprove(tokenAddressIn, address(poolAAVE), amountOut);
         // deposit liquidity in Aave
         poolAAVE.supply(tokenAddressIn, amountOut, msg.sender, Ref);
+        emit Successfull(msg.sender, tokenAddressIn, amountOut);
     }
 
     function supplyFromETH(address tokenAddressIn, uint24 _fee)
         external
         payable
+        isUser
         returns (uint256 amountOut)
     {
         // send ETH to contract
         (bool sent, bytes memory data) = payable(address(this)).call{value: msg.value}("");
         require(sent, "Failed to send Ether");
+        uint256 amountIn = msg.value - deLendCommission();
         // wrap ETH
-        WETH9.deposit{value: msg.value}();
+        WETH9.deposit{value: amountIn}();
         // Approve the router to spend WETH.
-        TransferHelper.safeApprove(address(WETH9), address(swapRouter), msg.value);
+        TransferHelper.safeApprove(address(WETH9), address(swapRouter), amountIn);
         //SWAP parameters
         ISwapRouter.ExactInputSingleParams memory params = ISwapRouter.ExactInputSingleParams({
             tokenIn: address(WETH9),
@@ -75,7 +113,7 @@ contract deLend {
             fee: _fee, //3000 standartd
             recipient: address(this),
             deadline: block.timestamp,
-            amountIn: msg.value,
+            amountIn: amountIn,
             amountOutMinimum: 0,
             sqrtPriceLimitX96: 0
         });
@@ -85,6 +123,7 @@ contract deLend {
         TransferHelper.safeApprove(tokenAddressIn, address(poolAAVE), amountOut);
         // deposit liquidity in Aave
         poolAAVE.supply(tokenAddressIn, amountOut, msg.sender, Ref);
+        emit Successfull(msg.sender, tokenAddressIn, amountOut);
     }
 
     // function to withdraw tokens from pool
@@ -92,11 +131,52 @@ contract deLend {
         address tokenAddress,
         address aTokenAddress,
         uint256 amountWithdrow
-    ) external {
+    ) external isUser {
+        uint256 _allowance = IERC20(aTokenAddress).allowance(msg.sender, address(this));
+        uint256 _balance = IERC20(aTokenAddress).balanceOf(msg.sender);
+        if (_allowance < amountWithdrow) {
+            revert InsufficientAllowance({
+                tokenAddress: aTokenAddress,
+                supplyAmount: amountWithdrow
+            });
+        }
+        if (_balance < amountWithdrow) {
+            revert InsufficientBalance({balance: _balance, supplyAmount: amountWithdrow});
+        }
         //send aToken to this contract
         TransferHelper.safeTransferFrom(aTokenAddress, msg.sender, address(this), amountWithdrow);
         // withdraw amount of tokens from aave to userAddress
         poolAAVE.withdraw(tokenAddress, amountWithdrow, msg.sender);
+        emit Successfull(msg.sender, tokenAddress, amountWithdrow);
+    }
+
+    function getLatestPrice() private view returns (int256) {
+        (
+            ,
+            /*uint80 roundID*/
+            int256 price, /*uint startedAt*/ /*uint timeStamp*/ /*uint80 answeredInRound*/
+            ,
+            ,
+
+        ) = priceFeed.latestRoundData();
+        return price;
+    }
+
+    function deLendCommission() public view returns (uint256) {
+        uint256 price = uint256(getLatestPrice());
+        uint256 deLendFee = (500000000 * 1 ether) / price;
+        return deLendFee;
+    }
+
+    function withdrawETH() public onlyOwner {
+        (bool sent, bytes memory data) = payable(msg.sender).call{value: address(this).balance}("");
+        require(sent, "Failed to send Ether");
+    }
+
+    function withdrawToken(address _tokenAddress) public onlyOwner {
+        uint256 _balance = IERC20(_tokenAddress).balanceOf(address(this));
+        // send input token to owner
+        TransferHelper.safeTransfer(_tokenAddress, msg.sender, _balance);
     }
 
     // Function to receive Ether. msg.data must be empty
