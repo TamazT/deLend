@@ -7,12 +7,13 @@ import {
   tokenVariables,
   polABI,
   polContract,
+  chainVariables,
 } from "./constants.js";
 
 const connectButton = document.getElementById("connectButton");
 const apyButton = document.getElementById("Apy");
 const bestStabelButton = document.getElementById("bestStable");
-connectButton.onclick = connect();
+connectButton.onclick = deposit();
 
 async function connect() {
   if (typeof window.ethereum !== "undefined") {
@@ -142,20 +143,17 @@ function getHigApy(a) {
   return [max, coinName, chainID];
 }
 
-apyButton.onload = apyFunction();
-async function apyFunction() {
+window.onload = getData();
+async function getData() {
   const arr = await getAPYETH();
   const arr1 = arr.concat(await getAPYOPT());
   const arr2 = arr1.concat(await getAPYPOL());
-  const b = getHigApy(arr2);
-  apyButton.innerHTML = b[0] + "%";
-}
-bestStabelButton.onload = stable();
-
-async function stable() {
-  const arr = await getAPYETH();
-  const arr1 = arr.concat(await getAPYOPT());
-  const arr2 = arr1.concat(await getAPYPOL());
-  const b = getHigApy(arr2);
-  bestStabelButton.innerHTML = b[1];
+  const best = getHigApy(arr2);
+  let highapy = best[0];
+  let bestStable = best[1];
+  let targetChain = best[2];
+  var targetcontract = chainVariables[targetChain].contract;
+  var abi = chainVariables[targetChain].abi;
+  var targetstable = chainVariables[targetChain][bestStable];
+  console.log(targetstable, targetcontract);
 }

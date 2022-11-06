@@ -15,6 +15,291 @@ export const tokenVariables = {
   polDAI: "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063",
   polUSDT: "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
 };
+export const chainVariables = {
+  ETH: {
+    contract: "0x1cf9380001676ef72B4023dac19F5742F19e9b21",
+    abi: [
+      {
+        inputs: [
+          {
+            internalType: "contract ISwapRouter",
+            name: "_swapRouter",
+            type: "address",
+          },
+          { internalType: "contract IWETH9", name: "_WETH9", type: "address" },
+          { internalType: "address", name: "poolAddress", type: "address" },
+        ],
+        stateMutability: "nonpayable",
+        type: "constructor",
+      },
+      {
+        inputs: [],
+        name: "Ref",
+        outputs: [{ internalType: "uint16", name: "", type: "uint16" }],
+        stateMutability: "view",
+        type: "function",
+      },
+      {
+        inputs: [],
+        name: "WETH9",
+        outputs: [
+          { internalType: "contract IWETH9", name: "", type: "address" },
+        ],
+        stateMutability: "view",
+        type: "function",
+      },
+      {
+        inputs: [],
+        name: "poolAAVE",
+        outputs: [
+          { internalType: "contract IPool", name: "", type: "address" },
+        ],
+        stateMutability: "view",
+        type: "function",
+      },
+      {
+        inputs: [
+          { internalType: "address", name: "tokenAddressIn", type: "address" },
+          { internalType: "uint24", name: "_fee", type: "uint24" },
+        ],
+        name: "supplyFromETH",
+        outputs: [
+          { internalType: "uint256", name: "amountOut", type: "uint256" },
+        ],
+        stateMutability: "payable",
+        type: "function",
+      },
+      {
+        inputs: [
+          { internalType: "uint256", name: "amountIn", type: "uint256" },
+          { internalType: "address", name: "tokenAddressOut", type: "address" },
+          { internalType: "address", name: "tokenAddressIn", type: "address" },
+          { internalType: "uint24", name: "_fee", type: "uint24" },
+        ],
+        name: "supplyFromToken",
+        outputs: [
+          { internalType: "uint256", name: "amountOut", type: "uint256" },
+        ],
+        stateMutability: "nonpayable",
+        type: "function",
+      },
+      {
+        inputs: [],
+        name: "swapRouter",
+        outputs: [
+          { internalType: "contract ISwapRouter", name: "", type: "address" },
+        ],
+        stateMutability: "view",
+        type: "function",
+      },
+      {
+        inputs: [
+          { internalType: "address", name: "tokenAddress", type: "address" },
+          { internalType: "address", name: "aTokenAddress", type: "address" },
+          { internalType: "uint256", name: "amountWithdrow", type: "uint256" },
+        ],
+        name: "withdraw",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function",
+      },
+      { stateMutability: "payable", type: "receive" },
+    ],
+    USDT: "0xdac17f958d2ee523a2206206994597c13d831ec7",
+    WETH: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+    USDC: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+    DAI: "0x6b175474e89094c44da98b954eedeac495271d0f",
+    BUSD: "0x4Fabb145d64652a948d72533023f6E7A623C7C53",
+    LUSD: "0x5f98805A4E8be255a32880FDeC7F6728C6568bA0",
+  },
+  POL: {
+    contract: "0x1cf9380001676ef72B4023dac19F5742F19e9b21",
+    abi: [
+      {
+        inputs: [
+          {
+            internalType: "contract ISwapRouter",
+            name: "_swapRouter",
+            type: "address",
+          },
+          { internalType: "contract IWETH9", name: "_WETH9", type: "address" },
+          { internalType: "address", name: "poolAddress", type: "address" },
+        ],
+        stateMutability: "nonpayable",
+        type: "constructor",
+      },
+      {
+        inputs: [],
+        name: "Ref",
+        outputs: [{ internalType: "uint16", name: "", type: "uint16" }],
+        stateMutability: "view",
+        type: "function",
+      },
+      {
+        inputs: [],
+        name: "WETH9",
+        outputs: [
+          { internalType: "contract IWETH9", name: "", type: "address" },
+        ],
+        stateMutability: "view",
+        type: "function",
+      },
+      {
+        inputs: [],
+        name: "poolAAVE",
+        outputs: [
+          { internalType: "contract IPool", name: "", type: "address" },
+        ],
+        stateMutability: "view",
+        type: "function",
+      },
+      {
+        inputs: [
+          { internalType: "address", name: "tokenAddressIn", type: "address" },
+          { internalType: "uint24", name: "_fee", type: "uint24" },
+        ],
+        name: "supplyFromETH",
+        outputs: [
+          { internalType: "uint256", name: "amountOut", type: "uint256" },
+        ],
+        stateMutability: "payable",
+        type: "function",
+      },
+      {
+        inputs: [
+          { internalType: "uint256", name: "amountIn", type: "uint256" },
+          { internalType: "address", name: "tokenAddressOut", type: "address" },
+          { internalType: "address", name: "tokenAddressIn", type: "address" },
+          { internalType: "uint24", name: "_fee", type: "uint24" },
+        ],
+        name: "supplyFromToken",
+        outputs: [
+          { internalType: "uint256", name: "amountOut", type: "uint256" },
+        ],
+        stateMutability: "nonpayable",
+        type: "function",
+      },
+      {
+        inputs: [],
+        name: "swapRouter",
+        outputs: [
+          { internalType: "contract ISwapRouter", name: "", type: "address" },
+        ],
+        stateMutability: "view",
+        type: "function",
+      },
+      {
+        inputs: [
+          { internalType: "address", name: "tokenAddress", type: "address" },
+          { internalType: "address", name: "aTokenAddress", type: "address" },
+          { internalType: "uint256", name: "amountWithdrow", type: "uint256" },
+        ],
+        name: "withdraw",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function",
+      },
+      { stateMutability: "payable", type: "receive" },
+    ],
+    USDC: "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+    DAI: "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063",
+    USDT: "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+  },
+  OPT: {
+    contract: "0x1cf9380001676ef72B4023dac19F5742F19e9b21",
+    abi: [
+      {
+        inputs: [
+          {
+            internalType: "contract ISwapRouter",
+            name: "_swapRouter",
+            type: "address",
+          },
+          { internalType: "contract IWETH9", name: "_WETH9", type: "address" },
+          { internalType: "address", name: "poolAddress", type: "address" },
+        ],
+        stateMutability: "nonpayable",
+        type: "constructor",
+      },
+      {
+        inputs: [],
+        name: "Ref",
+        outputs: [{ internalType: "uint16", name: "", type: "uint16" }],
+        stateMutability: "view",
+        type: "function",
+      },
+      {
+        inputs: [],
+        name: "WETH9",
+        outputs: [
+          { internalType: "contract IWETH9", name: "", type: "address" },
+        ],
+        stateMutability: "view",
+        type: "function",
+      },
+      {
+        inputs: [],
+        name: "poolAAVE",
+        outputs: [
+          { internalType: "contract IPool", name: "", type: "address" },
+        ],
+        stateMutability: "view",
+        type: "function",
+      },
+      {
+        inputs: [
+          { internalType: "address", name: "tokenAddressIn", type: "address" },
+          { internalType: "uint24", name: "_fee", type: "uint24" },
+        ],
+        name: "supplyFromETH",
+        outputs: [
+          { internalType: "uint256", name: "amountOut", type: "uint256" },
+        ],
+        stateMutability: "payable",
+        type: "function",
+      },
+      {
+        inputs: [
+          { internalType: "uint256", name: "amountIn", type: "uint256" },
+          { internalType: "address", name: "tokenAddressOut", type: "address" },
+          { internalType: "address", name: "tokenAddressIn", type: "address" },
+          { internalType: "uint24", name: "_fee", type: "uint24" },
+        ],
+        name: "supplyFromToken",
+        outputs: [
+          { internalType: "uint256", name: "amountOut", type: "uint256" },
+        ],
+        stateMutability: "nonpayable",
+        type: "function",
+      },
+      {
+        inputs: [],
+        name: "swapRouter",
+        outputs: [
+          { internalType: "contract ISwapRouter", name: "", type: "address" },
+        ],
+        stateMutability: "view",
+        type: "function",
+      },
+      {
+        inputs: [
+          { internalType: "address", name: "tokenAddress", type: "address" },
+          { internalType: "address", name: "aTokenAddress", type: "address" },
+          { internalType: "uint256", name: "amountWithdrow", type: "uint256" },
+        ],
+        name: "withdraw",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function",
+      },
+      { stateMutability: "payable", type: "receive" },
+    ],
+    USDC: "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+    DAI: "0xda10009cbd5d07dd0cecc66161fc93d7c9000da1",
+    USDT: "0x94b008aa00579c1307b0ef2c499ad98a8ce58e58",
+  },
+};
+
 export const polABI = [
   {
     inputs: [
