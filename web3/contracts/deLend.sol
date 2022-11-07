@@ -129,26 +129,30 @@ contract deLend is Ownable {
         uint256 amountIn = msg.value - deLendCommission();
         // wrap ETH
         WETH.deposit{value: amountIn}();
-        // Approve the router to spend WETH.
-        TransferHelper.safeApprove(
-            address(WETH),
-            address(swapRouter),
-            amountIn
-        );
-        //SWAP parameters
-        ISwapRouter.ExactInputSingleParams memory params = ISwapRouter
-            .ExactInputSingleParams({
-                tokenIn: address(WETH),
-                tokenOut: tokenAddressIn,
-                fee: _fee, //3000 standartd
-                recipient: address(this),
-                deadline: block.timestamp,
-                amountIn: amountIn,
-                amountOutMinimum: 0,
-                sqrtPriceLimitX96: 0
-            });
-        // The call to exactInputSingle executes the swap.
-        amountOut = swapRouter.exactInputSingle(params);
+        if (address(WETH) != tokenAddressIn) {
+            // Approve the router to spend WETH.
+            TransferHelper.safeApprove(
+                address(WETH),
+                address(swapRouter),
+                amountIn
+            );
+            //SWAP parameters
+            ISwapRouter.ExactInputSingleParams memory params = ISwapRouter
+                .ExactInputSingleParams({
+                    tokenIn: address(WETH),
+                    tokenOut: tokenAddressIn,
+                    fee: _fee, //3000 standartd
+                    recipient: address(this),
+                    deadline: block.timestamp,
+                    amountIn: amountIn,
+                    amountOutMinimum: 0,
+                    sqrtPriceLimitX96: 0
+                });
+            // The call to exactInputSingle executes the swap.
+            amountOut = swapRouter.exactInputSingle(params);
+        } else {
+            amountOut = amountIn;
+        }
         //approve to deposit token into aave contract
         TransferHelper.safeApprove(
             tokenAddressIn,

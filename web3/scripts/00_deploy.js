@@ -1,16 +1,19 @@
-const { deployments, network } = require("hardhat");
+const { deployments, network, userConfig, ethers, run } = require("hardhat");
 const { networkConfig } = require("../helper-hardhat-config");
 
 async function main() {
   const { deploy } = deployments;
   const deployer = process.env.PRIVATE_KEY;
   let chainid = network.config.chainid;
+  let currentGasPrice = await ethers.provider.getGasPrice();
+
   console.log("Get constructor variables");
   if (chainid != 31337) {
     swapRouter = networkConfig[chainid].swapRouter;
     WETH = networkConfig[chainid].WETH;
     poolAddressProvider = networkConfig[chainid].poolAddressProvider;
     AggregatorV3Interface = networkConfig[chainid].AggregatorV3Interface;
+    API_KEY = userConfig.etherscan.apiKey[network.name];
   }
   console.log("Done!");
 
@@ -20,10 +23,11 @@ async function main() {
     args: [swapRouter, WETH, poolAddressProvider, AggregatorV3Interface],
     log: true,
     waitConfirmations: network.config.blockConfirmations,
+    gasPrice: currentGasPrice,
   });
   console.log(await deLend.address);
-  console.log("Verify contract...");
-  if (chainid !== 31337 && process.env.ETHERSCAN_API_KEY) {
+
+  if (chainid !== 31337 && API_KEY) {
     await verify(deLend.address, [
       swapRouter,
       WETH,

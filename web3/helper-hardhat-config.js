@@ -7,6 +7,13 @@ module.exports = {
       poolAddressProvider: "0xa97684ead0e402dC232d5A977953DF7ECBaB3CDb",
       AggregatorV3Interface: "0xF9680D99D6C9589e2a93a78A04A279e509205945",
     },
+    80001: {
+      name: "mumbai",
+      swapRouter: "0xE592427A0AEce92De3Edee1F18E0157C05861564",
+      WETH: "0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889",
+      poolAddressProvider: "0x5343b5bA672Ae99d627A1C87866b8E53F47Db2E6",
+      AggregatorV3Interface: "0x0715A7794a1dc8e42615F059dD6e406A6594651A",
+    },
     10: {
       name: "optimism",
       swapRouter: "0xE592427A0AEce92De3Edee1F18E0157C05861564",
