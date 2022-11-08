@@ -1,4 +1,4 @@
-const { deployments, network, userConfig, ethers, run } = require("hardhat");
+const { deployments, network, ethers, run } = require("hardhat");
 const { networkConfig } = require("../helper-hardhat-config");
 
 async function main() {
@@ -8,13 +8,10 @@ async function main() {
   let currentGasPrice = await ethers.provider.getGasPrice();
 
   console.log("Get constructor variables");
-  if (chainid != 31337) {
-    swapRouter = networkConfig[chainid].swapRouter;
-    WETH = networkConfig[chainid].WETH;
-    poolAddressProvider = networkConfig[chainid].poolAddressProvider;
-    AggregatorV3Interface = networkConfig[chainid].AggregatorV3Interface;
-    API_KEY = userConfig.etherscan.apiKey[network.name];
-  }
+  let swapRouter = networkConfig[chainid].swapRouter;
+  let WETH = networkConfig[chainid].WETH;
+  let poolAddressProvider = networkConfig[chainid].poolAddressProvider;
+  let AggregatorV3Interface = networkConfig[chainid].AggregatorV3Interface;
   console.log("Done!");
 
   console.log("Deploying deLend and waiting for confirmations...");
@@ -25,7 +22,7 @@ async function main() {
     waitConfirmations: network.config.blockConfirmations,
     gasPrice: currentGasPrice,
   });
-  console.log(await deLend.address);
+  console.log(`Contract addres is ${await deLend.address}`);
 
   if (chainid !== 31337 && API_KEY) {
     await verify(deLend.address, [

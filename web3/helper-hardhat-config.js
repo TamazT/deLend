@@ -5,7 +5,7 @@ module.exports = {
       swapRouter: "0xE592427A0AEce92De3Edee1F18E0157C05861564",
       WETH: "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270",
       poolAddressProvider: "0xa97684ead0e402dC232d5A977953DF7ECBaB3CDb",
-      AggregatorV3Interface: "0xF9680D99D6C9589e2a93a78A04A279e509205945",
+      AggregatorV3Interface: "0xAB594600376Ec9fD91F8e885dADF0CE036862dE0",
     },
     80001: {
       name: "mumbai",
@@ -30,6 +30,10 @@ module.exports = {
     },
     31337: {
       name: "hardhat",
+      swapRouter: "0xE592427A0AEce92De3Edee1F18E0157C05861564",
+      WETH: "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270",
+      poolAddressProvider: "0xa97684ead0e402dC232d5A977953DF7ECBaB3CDb",
+      AggregatorV3Interface: "0xAB594600376Ec9fD91F8e885dADF0CE036862dE0",
     },
   },
 };

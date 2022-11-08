@@ -6,10 +6,12 @@ require("dotenv").config();
 require("@nomiclabs/hardhat-etherscan");
 
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
+
 const GOERLI_RPC_URL = process.env.GOERLI_RPC_URL;
 const POLYGON_RPC_URL = process.env.POLYGON_RPC_URL;
 const MUMBAI_RPC_URL = process.env.MUMBAI_RPC_URL;
 const OPTIMISM_RPC_URL = process.env.OPTIMISM_RPC_URL;
+
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY;
 const POLYGON_API_KEY = process.env.POLYGON_API_KEY;
 const OPTIMISM_API_KEY = process.env.OPTIMISM_API_KEY;
@@ -28,7 +30,12 @@ module.exports = {
     hardhat: {
       chainid: 31337,
       blockConfirmations: 1,
+      forking: {
+        url: POLYGON_RPC_URL,
+        blockNumber: 35328453,
+      },
     },
+
     goerli: {
       chainid: 5,
       blockConfirmations: 6,
@@ -55,11 +62,6 @@ module.exports = {
     },
   },
   solidity: "0.8.10",
-  namedAccounts: {
-    deployer: {
-      default: 0,
-    },
-  },
   path: {
     sources: "./contracts",
   },

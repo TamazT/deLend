@@ -103,6 +103,8 @@ contract deLend is Ownable {
                 });
             // The call to exactInputSingle executes the swap.
             amountOut = swapRouter.exactInputSingle(params);
+        } else {
+            amountOut = amountIn;
         }
         //approve to deposit token into aave contract
         TransferHelper.safeApprove(
