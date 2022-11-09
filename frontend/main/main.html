@@ -8,9 +8,19 @@
       <h1 class="title">deLend</h1>
       <p id="subheader"></p>
     </header>
-
     <main>
-      <div id="network_connection">
+      <div class="network_connection">
+        <button class="btn1" id="network">Network</button>
+        <div class="dropdown">
+        <button class="btn2" >
+         <i class="fa-caret-down">^</i>
+          </button>
+          <div class="dropdown-content">
+          <button id="ETH">ETH</button>
+          <button id="POL">POL</button>
+          <button id="OPT">OPT</button>
+          </div>
+</div>
         <button id="connectButton">Connect</button>
       </div>
       <div id="stableDeposit">
@@ -22,9 +32,7 @@
         <h4>Current Apy:</h4>
         <h4>Best stable:</h4>
         <h4>Your deposit 1023 usdt</h4>
-        <label for="ethAmount">ETH Amount</label>
         <input id="ethAmount" placeholder="0.1" />
-        
         <button id="depositButton">Deposit</button>
         <button id="withdrawButton">Withdraw</button>
       </div>

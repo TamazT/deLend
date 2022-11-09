@@ -13,7 +13,82 @@ import {
 const connectButton = document.getElementById("connectButton");
 const apyButton = document.getElementById("Apy");
 const bestStabelButton = document.getElementById("bestStable");
-connectButton.onclick = deposit();
+const depositButton = document.getElementById("depositButton");
+const ethButton = document.getElementById("ETH");
+const polButton = document.getElementById("POL");
+const optButton = document.getElementById("OPT");
+const networkButton = document.getElementById("network");
+connectButton.onclick = connect;
+depositButton.onclick = deposit;
+ethButton.onclick = ethConnect;
+polButton.onclick = polConnect;
+optButton.onclick = optConnect;
+async function ethConnect() {
+  if (typeof window.ethereum !== "undefined") {
+    await connect();
+    let obj = await getData("0x1");
+    apyButton.innerHTML = obj.highapy;
+    bestStabelButton.innerHTML = obj.bestStable;
+  }
+  console.log(window.ethereum.chainId);
+  if (window.ethereum.chainId != "0x1") {
+    await ethereum.request({
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: "0x1" }],
+    });
+    networkButton.innerHTML = "Etherium";
+    let obj = await getData("0x1");
+    apyButton.innerHTML = obj.highapy;
+    bestStabelButton.innerHTML = obj.bestStable;
+  }
+}
+async function polConnect() {
+  if (typeof window.ethereum !== "undefined") {
+    await connect();
+    let obj = await getData("0x89");
+    console.log(obj);
+    apyButton.innerHTML = obj.highapy;
+    bestStabelButton.innerHTML = obj.bestStable;
+  }
+  if (window.ethereum.chainId != "0x89") {
+    await ethereum.request({
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: "0x89" }],
+    });
+    networkButton.innerHTML = "Polygon";
+    let obj = await getData("0x89");
+    console.log(obj);
+    apyButton.innerHTML = obj.highapy;
+    bestStabelButton.innerHTML = obj.bestStable;
+  }
+}
+async function optConnect() {
+  if (typeof window.ethereum !== "undefined") {
+    await connect();
+    let obj = await getData("0xA");
+    apyButton.innerHTML = obj.highapy;
+    bestStabelButton.innerHTML = obj.bestStable;
+  }
+  if (window.ethereum.chainId != "0xA") {
+    await ethereum.request({
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: "0xA" }],
+    });
+    networkButton.innerHTML = "Optimizm";
+    let obj = await getData("0xA");
+    apyButton.innerHTML = obj.highapy;
+    bestStabelButton.innerHTML = obj.bestStable;
+  }
+}
+async function wichChainIs() {
+  if (window.ethereum.chainId == "0x1") {
+    networkButton.innerHTML = "Etherium";
+  } else if (window.ethereum.chainId == "0x89") {
+    networkButton.innerHTML = "Polygon";
+  } else if (window.ethereum.chainId == "0xA") {
+    networkButton.innerHTML = "Optimizme";
+  }
+}
 
 async function connect() {
   if (typeof window.ethereum !== "undefined") {
@@ -23,12 +98,13 @@ async function connect() {
       console.log(error);
     }
     const accounts = await ethereum.request({ method: "eth_accounts" });
-    console.log(typeof window.ethereum);
+
     connectButton.innerHTML =
       accounts[0].slice(0, 3) + "..." + accounts[0].slice(-3);
   } else {
     connectButton.innerHTML = "Please install MetaMask";
   }
+  wichChainIs();
 }
 
 let providerETH = new ethers.providers.getDefaultProvider(
@@ -143,17 +219,219 @@ function getHigApy(a) {
   return [max, coinName, chainID];
 }
 
-window.onload = getData();
-async function getData() {
-  const arr = await getAPYETH();
+window.onload;
+async function getData(chain) {
+  if (chain == "0x1") {
+    const arr = await getAPYETH();
+    const best = getHigApy(arr);
+    let obj = {
+      highapy: best[0],
+      bestStable: best[1],
+      targetChain: best[2],
+    };
+    return obj;
+  } else if (chain == "0x89") {
+    const arr = await getAPYPOL();
+    const best = getHigApy(arr);
+    let obj = {
+      highapy: best[0],
+      bestStable: best[1],
+      targetChain: best[2],
+    };
+    return obj;
+  } else if (chain == "0xA") {
+    const arr = await getAPYOPT();
+    const best = getHigApy(arr);
+    let obj = {
+      highapy: best[0],
+      bestStable: best[1],
+      targetChain: best[2],
+    };
+    return obj;
+    /* const arr = await getAPYETH();
   const arr1 = arr.concat(await getAPYOPT());
   const arr2 = arr1.concat(await getAPYPOL());
-  const best = getHigApy(arr2);
-  let highapy = best[0];
+  const best = getHigApy(arr2); */
+    /*  let highapy = best[0];
   let bestStable = best[1];
   let targetChain = best[2];
-  var targetcontract = chainVariables[targetChain].contract;
-  var abi = chainVariables[targetChain].abi;
-  var targetstable = chainVariables[targetChain][bestStable];
-  console.log(targetstable, targetcontract);
+  let targetcontract = chainVariables[targetChain].contract;
+  let abi = chainVariables[targetChain].abi;
+  let targetstable = chainVariables[targetChain][bestStable]; */
+  }
+}
+
+async function deposit() {
+  const obj = await getData();
+  let ethAmount = document.getElementById("ethAmount").value;
+  ethAmount = ethers.utils.parseEther(ethAmount);
+  const provider = new ethers.providers.Web3Provider(window.ethereum);
+  const signer = provider.getSigner();
+  const contractDeposit = new ethers.Contract(
+    chainVariables[obj.targetChain].contract,
+    chainVariables[obj.targetChain].abi,
+    signer
+  );
+  let balance = await findSwapStables(
+    ethAmount,
+    obj.bestStable,
+    obj.targetChain
+  );
+  if (balance == true) {
+    if ((await chechAllowance(obj.targetChain, obj.bestStable)) == true) {
+      const transactionRespone = await contractDeposit.supplyFromToken(
+        ethAmount,
+        chainVariables[obj.targetChain][obj.bestStable],
+        chainVariables[obj.targetChain][obj.bestStable],
+        3000
+      );
+    } else {
+      await approve(obj.targetChain, obj.bestStable);
+      const transactionRespone = await contractDeposit.supplyFromToken(
+        ethAmount,
+        chainVariables[obj.targetChain][obj.bestStable],
+        chainVariables[obj.targetChain][obj.bestStable],
+        3000
+      );
+    }
+  } else {
+    const transactionRespone = await contractDeposit.supplyFromToken(
+      ethAmount,
+      chainVariables[obj.targetChain][obj.bestStable],
+      balance,
+      3000
+    );
+  }
+}
+
+async function chechAllowance(chain, stable) {
+  let ethAmount = document.getElementById("ethAmount").value;
+  ethAmount = ethers.utils.parseEther(ethAmount);
+  const provider = new ethers.providers.Web3Provider(window.ethereum);
+  const signer = provider.getSigner();
+  const contractAllowance = new ethers.Contract(
+    tokenVariables[chain][stable].contract,
+    tokenVariables[chain][stable].abi,
+    signer
+  );
+  const address = await signer.getAddress();
+  const transactionresponse = await contractAllowance.allowance(
+    address,
+    chainVariables[chain].contract
+  );
+  let b = transactionresponse.toHexString();
+  if (parseInt(b, 16) == 0) {
+    return false;
+  } else {
+    return true;
+  }
+}
+async function approve(chain, stable) {
+  let ethAmount = document.getElementById("ethAmount").value;
+  ethAmount = ethers.utils.parseEther(ethAmount);
+  const provider = new ethers.providers.Web3Provider(window.ethereum);
+  const signer = provider.getSigner();
+  const contractApprove = new ethers.Contract(
+    tokenVariables[chain][contract].contract,
+    tokenVariables[chain][contract].abi,
+    signer
+  );
+  const transactionresponse = await contractApprove.approve(
+    chainVariables[chain].contract,
+    ethAmount
+  );
+}
+
+async function checkBalances(chain) {
+  let ethAmount = "0.5";
+  ethAmount = ethers.utils.parseEther(ethAmount);
+  const provider = new ethers.providers.Web3Provider(window.ethereum);
+  const signer = provider.getSigner();
+  const address = await signer.getAddress();
+
+  const contractWETH = new ethers.Contract(
+    tokenVariables[chain]["WETH"].contract,
+    tokenVariables[chain]["WETH"].abi,
+    signer
+  );
+  const WETH = await contractWETH.balanceOf(address);
+  let WETHa = WETH.toHexString();
+  let WETHBalance = parseInt(WETHa, 16);
+
+  const contractUSDT = new ethers.Contract(
+    tokenVariables[chain]["USDT"].contract,
+    tokenVariables[chain]["USDT"].abi,
+    signer
+  );
+  const USDT = await contractUSDT.balanceOf(address);
+  let USDTa = USDT.toHexString();
+  let USDTBalance = parseInt(USDTa, 16);
+
+  const contractUSDC = new ethers.Contract(
+    tokenVariables[chain]["USDC"].contract,
+    tokenVariables[chain]["USDT"].abi,
+    signer
+  );
+  const USDC = await contractUSDC.balanceOf(address);
+  let USDCa = USDC.toHexString();
+  let USDCBalance = parseInt(USDCa, 16);
+
+  const contractDAI = new ethers.Contract(
+    tokenVariables[chain]["DAI"].contract,
+    tokenVariables[chain]["DAI"].abi,
+    signer
+  );
+  const DAI = await contractDAI.balanceOf(address);
+  let DAIa = DAI.toHexString();
+  let DAIBalance = parseInt(DAIa, 16);
+  let objs = {
+    USDT: USDTBalance,
+    USDC: USDCBalance,
+    DAI: DAIBalance,
+    WETH: WETHBalance,
+  };
+  return objs;
+}
+async function findSwapStables(amount, targetoken, chain) {
+  let balances = await checkBalances(chain);
+  let currentAmount = balances[targetoken];
+  if (currentAmount >= amount) {
+    return true;
+  } else {
+    let needAmount = amount - currentAmount;
+    if (balances["USDT"] >= needAmount) {
+      return tokenVariables[chain]["USDT"];
+    } else if (balances["USDC"] >= needAmount) {
+      return tokenVariables[chain]["USDC"];
+    } else if (balances["DAI"] >= needAmount) {
+      return tokenVariables[chain]["DAI"];
+    } else {
+      return false;
+    }
+  }
+}
+//кнопка должна принимать тот стейблы который нужно свапнуть
+//Atoken
+//сеть в которой происходит вывод
+//сумму для вывод
+//Вызвать функцию
+
+async function withdrawStables(stable, chain) {
+  let aToken = "A" + stable;
+  aToken = chainVariables[chain][aToken];
+  let ethAmount = document.getElementById("ethAmount").value;
+  ethAmount = ethers.utils.parseEther(ethAmount);
+  let stableContract = chainVariables[chain][stable];
+  const provider = new ethers.providers.Web3Provider(window.ethereum);
+  const signer = provider.getSigner();
+  const contract = new ethers.Contract(
+    chainVariables[chain].contract,
+    chainVariables[chain].abi,
+    signer
+  );
+  const transactionRespone = await contract.withdraw(
+    stableContract,
+    aToken,
+    ethAmount
+  );
 }
