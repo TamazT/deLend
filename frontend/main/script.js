@@ -105,6 +105,9 @@ async function connect() {
     connectButton.innerHTML = "Please install MetaMask";
   }
   wichChainIs();
+  let obj = await getData(window.ethereum.chainId);
+  apyButton.innerHTML = obj.highapy;
+  bestStabelButton.innerHTML = obj.bestStable;
 }
 
 let providerETH = new ethers.providers.getDefaultProvider(
