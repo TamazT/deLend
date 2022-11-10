@@ -38,7 +38,7 @@ async function ethConnect() {
     });
     networkButton.innerHTML = "Etherium";
     let obj = await getData("0x1");
-    apyButton.innerHTML = obj.highapy;
+    apyButton.innerHTML = obj.highapy + "%";
     bestStabelButton.innerHTML = obj.bestStable;
   }
 }
@@ -47,8 +47,8 @@ async function polConnect() {
     await connect();
     let obj = await getData("0x89");
     console.log(obj);
-    apyButton.innerHTML = obj.highapy;
-    bestStabelButton.innerHTML = obj.bestStable;
+    apyButton.innerHTML = +obj.highapy + "%";
+    bestStabelButton.innerHTML = +obj.bestStable;
   }
   if (window.ethereum.chainId != "0x89") {
     await ethereum.request({
@@ -58,7 +58,7 @@ async function polConnect() {
     networkButton.innerHTML = "Polygon";
     let obj = await getData("0x89");
     console.log(obj);
-    apyButton.innerHTML = obj.highapy;
+    apyButton.innerHTML = obj.highapy + "%";
     bestStabelButton.innerHTML = obj.bestStable;
   }
 }
@@ -66,7 +66,7 @@ async function optConnect() {
   if (typeof window.ethereum !== "undefined") {
     await connect();
     let obj = await getData("0xA");
-    apyButton.innerHTML = obj.highapy;
+    apyButton.innerHTML = obj.highapy + "%";
     bestStabelButton.innerHTML = obj.bestStable;
   }
   if (window.ethereum.chainId != "0xA") {
@@ -76,7 +76,7 @@ async function optConnect() {
     });
     networkButton.innerHTML = "Optimizm";
     let obj = await getData("0xA");
-    apyButton.innerHTML = obj.highapy;
+    apyButton.innerHTML = obj.highapy + "%";
     bestStabelButton.innerHTML = obj.bestStable;
   }
 }
@@ -104,9 +104,10 @@ async function connect() {
   } else {
     connectButton.innerHTML = "Please install MetaMask";
   }
+  console.log(window.ethereum.chainId);
   wichChainIs();
   let obj = await getData(window.ethereum.chainId);
-  apyButton.innerHTML = obj.highapy;
+  apyButton.innerHTML = obj.highapy + "%";
   bestStabelButton.innerHTML = obj.bestStable;
 }
 
