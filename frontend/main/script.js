@@ -65,17 +65,17 @@ async function polConnect() {
 async function optConnect() {
   if (typeof window.ethereum !== "undefined") {
     await connect();
-    let obj = await getData("0xA");
+    let obj = await getData("0xa");
     apyButton.innerHTML = obj.highapy + "%";
     bestStabelButton.innerHTML = obj.bestStable;
   }
-  if (window.ethereum.chainId != "0xA") {
+  if (window.ethereum.chainId != "0xa") {
     await ethereum.request({
       method: "wallet_switchEthereumChain",
-      params: [{ chainId: "0xA" }],
+      params: [{ chainId: "0xa" }],
     });
     networkButton.innerHTML = "Optimizm";
-    let obj = await getData("0xA");
+    let obj = await getData("0xa");
     apyButton.innerHTML = obj.highapy + "%";
     bestStabelButton.innerHTML = obj.bestStable;
   }
@@ -85,7 +85,7 @@ async function wichChainIs() {
     networkButton.innerHTML = "Etherium";
   } else if (window.ethereum.chainId == "0x89") {
     networkButton.innerHTML = "Polygon";
-  } else if (window.ethereum.chainId == "0xA") {
+  } else if (window.ethereum.chainId == "0xa") {
     networkButton.innerHTML = "Optimizme";
   }
 }
@@ -196,7 +196,6 @@ async function getAPYPOL() {
 function getHigApy(a) {
   let max = Math.max.apply(Math, a);
   let index = a.findIndex((i) => i == max);
-  console.log(index);
   let coinName = "";
   let chainID = "";
   if (index == 0 || index == 6 || index == 9) {
@@ -213,11 +212,11 @@ function getHigApy(a) {
     coinName = "WETH";
   }
   if ((index >= 0) & (index < 6)) {
-    chainID = "ETH";
+    chainID = "0x1";
   } else if ((index > 5) & (index < 9)) {
-    chainID = "OPT";
+    chainID = "0xA";
   } else {
-    chainID = "POL";
+    chainID = "0x89";
   }
 
   return [max, coinName, chainID];
@@ -243,7 +242,7 @@ async function getData(chain) {
       targetChain: best[2],
     };
     return obj;
-  } else if (chain == "0xA") {
+  } else if (chain == "0xa") {
     const arr = await getAPYOPT();
     const best = getHigApy(arr);
     let obj = {
@@ -266,7 +265,8 @@ async function getData(chain) {
 }
 
 async function deposit() {
-  const obj = await getData();
+  const obj = await getData(window.ethereum.chainId);
+  console.log(obj);
   let ethAmount = document.getElementById("ethAmount").value;
   ethAmount = ethers.utils.parseEther(ethAmount);
   const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -347,7 +347,7 @@ async function approve(chain, stable) {
 }
 
 async function checkBalances(chain) {
-  let ethAmount = "0.5";
+  let ethAmount = document.getElementById("ethAmount").value;
   ethAmount = ethers.utils.parseEther(ethAmount);
   const provider = new ethers.providers.Web3Provider(window.ethereum);
   const signer = provider.getSigner();
@@ -414,14 +414,10 @@ async function findSwapStables(amount, targetoken, chain) {
     }
   }
 }
-//кнопка должна принимать тот стейблы который нужно свапнуть
-//Atoken
-//сеть в которой происходит вывод
-//сумму для вывод
-//Вызвать функцию
 
-async function withdrawStables(stable, chain) {
+async function withdrawStables(stable) {
   let aToken = "A" + stable;
+  let chain = window.ethereum.chainId;
   aToken = chainVariables[chain][aToken];
   let ethAmount = document.getElementById("ethAmount").value;
   ethAmount = ethers.utils.parseEther(ethAmount);
