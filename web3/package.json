@@ -24,5 +24,10 @@
     "node-fetch": "2.0",
     "solidity-coverage": "^0.8.0",
     "typechain": "^8.1.0"
+  },
+  "scripts": {
+    "deploy": "yarn hardhat run scripts/00_deploy.js",
+    "test": "yarn hardhat test",
+    "coverage": "yarn hardhat coverage"
   }
 }
