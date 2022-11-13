@@ -35,7 +35,6 @@ module.exports = {
         blockNumber: 35328453,
       },
     },
-
     goerli: {
       chainid: 5,
       blockConfirmations: 6,

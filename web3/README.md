@@ -4,10 +4,11 @@ This section presents the web3 core of the deLand protocol.
 The project was made using the hardhat framework.
 Since the protocol greatly simplifies the user's interaction with DeFi tools, a small commission is charged from the user.
 At the moment, the following functions are implemented:
--Deposit your own coins (eth/mattic/ etc.) in the token with the highest APY on Aave. With the help of the oracle data feed from chainlink, the user is charged a commission equal to $ 1 at the current rate.
--Deposit any own desired token (usdt/usdc/chain/ etc.) into the token with the highest APY on Aave. The user is charged a commission equal to 1% of the deposit amount.
--Refund of funds previously deposited on Aave.
--Functions for the owner of the contract.
+
+- Deposit your own coins (eth/mattic/ etc.) in the token with the highest APY on Aave. With the help of the oracle data feed from chainlink, the user is charged a commission equal to $ 1 at the current rate.
+- Deposit any own desired token (usdt/usdc/chain/ etc.) into the token with the highest APY on Aave. The user is charged a commission equal to 1% of the deposit amount.
+- Refund of funds previously deposited on Aave.
+- Functions for the owner of the contract.
 
 - [Getting Started](#getting-started)
   - [Requirements](#requirements)

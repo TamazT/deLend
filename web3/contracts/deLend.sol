@@ -124,9 +124,10 @@ contract deLend is Ownable {
         returns (uint256 amountOut)
     {
         // send ETH to contract
-        (bool sent, bytes memory data) = payable(address(this)).call{
-            value: msg.value
-        }("");
+        (
+            bool sent, /*bytes memory data*/
+
+        ) = payable(address(this)).call{value: msg.value}("");
         require(sent, "Failed to send Ether");
         uint256 amountIn = msg.value - deLendCommission();
         // wrap ETH
@@ -220,9 +221,10 @@ contract deLend is Ownable {
     }
 
     function withdrawETH() public onlyOwner {
-        (bool sent, bytes memory data) = payable(msg.sender).call{
-            value: address(this).balance
-        }("");
+        (
+            bool sent, /*bytes memory data*/
+
+        ) = payable(msg.sender).call{value: address(this).balance}("");
         require(sent, "Failed to send Ether");
     }
 

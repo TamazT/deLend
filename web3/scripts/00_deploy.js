@@ -24,7 +24,7 @@ async function main() {
   });
   console.log(`Contract addres is ${await deLend.address}`);
 
-  if (chainid !== 31337 && API_KEY) {
+  if (chainid !== 31337) {
     await verify(deLend.address, [
       swapRouter,
       WETH,
