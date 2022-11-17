@@ -10,11 +10,11 @@ import "../node_modules/@openzeppelin/contracts/access/Ownable.sol";
 import "./interfaces/IWETH.sol";
 
 contract deLend is Ownable {
-    ISwapRouter private immutable swapRouter; // 0xE592427A0AEce92De3Edee1F18E0157C05861564
-    IWETH private immutable WETH; // 0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6
-    IPoolAddressesProvider private immutable ADDRESSES_PROVIDER; // 0xc4dCB5126a3AfEd129BC3668Ea19285A9f56D15D
-    IPool private immutable poolAAVE; //0x368EedF3f56ad10b9bC57eed4Dac65B26Bb667f6
-    AggregatorV3Interface private immutable priceFeed; // 0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e
+    ISwapRouter private immutable swapRouter;
+    IWETH private immutable WETH;
+    IPoolAddressesProvider private immutable ADDRESSES_PROVIDER;
+    IPool private immutable poolAAVE;
+    AggregatorV3Interface private immutable priceFeed;
 
     uint16 private Ref;
 
@@ -94,7 +94,7 @@ contract deLend is Ownable {
                 .ExactInputSingleParams({
                     tokenIn: tokenAddressOut,
                     tokenOut: tokenAddressIn,
-                    fee: _fee, //3000 standartd
+                    fee: _fee,
                     recipient: address(this),
                     deadline: block.timestamp,
                     amountIn: amountIn,

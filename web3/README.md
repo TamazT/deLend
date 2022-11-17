@@ -10,6 +10,8 @@ At the moment, the following functions are implemented:
 - Refund of funds previously deposited on Aave.
 - Functions for the owner of the contract.
 
+# Contents
+
 - [Getting Started](#getting-started)
   - [Requirements](#requirements)
   - [Quickstart](#quickstart)
