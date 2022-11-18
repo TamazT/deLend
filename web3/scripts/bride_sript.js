@@ -33,7 +33,7 @@ async function bridgeTxMetamask(
   // send transaction from MM
   const txHash = await ethereum.request({
     method: "eth_sendTransaction",
-    params: [transactionParameters],
+    params: [txParam],
   });
 }
 

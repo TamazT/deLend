@@ -174,7 +174,7 @@ export const tokenVariables = {
   },
   "0x89": {
     USDT: {
-      contract: "0x7FFB3d637014488b63fb9858E279385685AFc1e2",
+      contract: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
       abi: [
         { inputs: [], stateMutability: "nonpayable", type: "constructor" },
         {
@@ -779,7 +779,7 @@ export const tokenVariables = {
       ],
     },
     USDC: {
-      contract: "0xDD9185DB084f5C4fFf3b4f70E7bA62123b812226",
+      contract: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
       abi: [
         {
           anonymous: false,
@@ -3444,7 +3444,7 @@ export const chainVariables = {
     LUSD: "0x5f98805A4E8be255a32880FDeC7F6728C6568bA0",
   },
   "0x89": {
-    contract: "0x1cf9380001676ef72B4023dac19F5742F19e9b21",
+    contract: "0x8CED2D36f01ae055AC91A852806ECFe4632aFf82",
     abi: [
       {
         inputs: [
@@ -3534,7 +3534,7 @@ export const chainVariables = {
     ],
     USDC: "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
     DAI: "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063",
-    USDT: "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+    USDT: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
     AUSDC: "0x625E7708f30cA75bfd92586e17077590C60eb4cD",
     ADAI: "0x82E64f49Ed5EC1bC6e43DAD4FC8Af9bb3A2312EE",
     AUSDT: "0x6ab707Aca953eDAeFBc4fD23bA73294241490620",

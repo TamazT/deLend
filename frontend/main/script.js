@@ -19,7 +19,7 @@ const polButton = document.getElementById("POL");
 const optButton = document.getElementById("OPT");
 const networkButton = document.getElementById("network");
 connectButton.onclick = connect;
-depositButton.onclick = deposit;
+depositButton.onclick = deposit; //deposit;
 ethButton.onclick = ethConnect;
 polButton.onclick = polConnect;
 optButton.onclick = optConnect;
@@ -74,7 +74,7 @@ async function optConnect() {
       method: "wallet_switchEthereumChain",
       params: [{ chainId: "0xa" }],
     });
-    networkButton.innerHTML = "Optimizm";
+    networkButton.innerHTML = "Optimism";
     let obj = await getData("0xa");
     apyButton.innerHTML = obj.highapy + "%";
     bestStabelButton.innerHTML = obj.bestStable;
@@ -86,7 +86,7 @@ async function wichChainIs() {
   } else if (window.ethereum.chainId == "0x89") {
     networkButton.innerHTML = "Polygon";
   } else if (window.ethereum.chainId == "0xa") {
-    networkButton.innerHTML = "Optimizme";
+    networkButton.innerHTML = "Optimism";
   }
 }
 
@@ -105,6 +105,7 @@ async function connect() {
     connectButton.innerHTML = "Please install MetaMask";
   }
   console.log(window.ethereum.chainId);
+
   wichChainIs();
   let obj = await getData(window.ethereum.chainId);
   apyButton.innerHTML = obj.highapy + "%";
@@ -212,7 +213,7 @@ function getHigApy(a) {
     coinName = "WETH";
   }
   if ((index >= 0) & (index < 6)) {
-    chainID = "0x1";
+    chainID = "0x89";
   } else if ((index > 5) & (index < 9)) {
     chainID = "0xA";
   } else {
@@ -222,7 +223,6 @@ function getHigApy(a) {
   return [max, coinName, chainID];
 }
 
-window.onload;
 async function getData(chain) {
   if (chain == "0x1") {
     const arr = await getAPYETH();
@@ -266,9 +266,9 @@ async function getData(chain) {
 
 async function deposit() {
   const obj = await getData(window.ethereum.chainId);
-  console.log(obj);
+  console.log(window.ethereum.chainId);
   let ethAmount = document.getElementById("ethAmount").value;
-  ethAmount = ethers.utils.parseEther(ethAmount);
+  ethAmount = ethAmount * 10000;
   const provider = new ethers.providers.Web3Provider(window.ethereum);
   const signer = provider.getSigner();
   const contractDeposit = new ethers.Contract(
@@ -276,11 +276,15 @@ async function deposit() {
     chainVariables[obj.targetChain].abi,
     signer
   );
+  console.log(ethAmount[0]);
+
   let balance = await findSwapStables(
     ethAmount,
     obj.bestStable,
     obj.targetChain
   );
+  console.log(balance.contract);
+
   if (balance == true) {
     if ((await chechAllowance(obj.targetChain, obj.bestStable)) == true) {
       const transactionRespone = await contractDeposit.supplyFromToken(
@@ -290,6 +294,7 @@ async function deposit() {
         3000
       );
     } else {
+      console.log("approve");
       await approve(obj.targetChain, obj.bestStable);
       const transactionRespone = await contractDeposit.supplyFromToken(
         ethAmount,
@@ -299,10 +304,12 @@ async function deposit() {
       );
     }
   } else {
+    console.log("else");
     const transactionRespone = await contractDeposit.supplyFromToken(
       ethAmount,
+      balance.contract,
       chainVariables[obj.targetChain][obj.bestStable],
-      balance,
+
       3000
     );
   }
@@ -336,8 +343,8 @@ async function approve(chain, stable) {
   const provider = new ethers.providers.Web3Provider(window.ethereum);
   const signer = provider.getSigner();
   const contractApprove = new ethers.Contract(
-    tokenVariables[chain][contract].contract,
-    tokenVariables[chain][contract].abi,
+    tokenVariables[chain][stable].contract,
+    tokenVariables[chain][stable].abi,
     signer
   );
   const transactionresponse = await contractApprove.approve(
@@ -347,20 +354,20 @@ async function approve(chain, stable) {
 }
 
 async function checkBalances(chain) {
-  let ethAmount = document.getElementById("ethAmount").value;
-  ethAmount = ethers.utils.parseEther(ethAmount);
+  /* let ethAmount = document.getElementById("ethAmount").value;
+  ethAmount = ethers.utils.parseEther(ethAmount); */
   const provider = new ethers.providers.Web3Provider(window.ethereum);
   const signer = provider.getSigner();
   const address = await signer.getAddress();
 
-  const contractWETH = new ethers.Contract(
+  /* const contractWETH = new ethers.Contract(
     tokenVariables[chain]["WETH"].contract,
     tokenVariables[chain]["WETH"].abi,
     signer
   );
   const WETH = await contractWETH.balanceOf(address);
   let WETHa = WETH.toHexString();
-  let WETHBalance = parseInt(WETHa, 16);
+  let WETHBalance = parseInt(WETHa, 16); */
 
   const contractUSDT = new ethers.Contract(
     tokenVariables[chain]["USDT"].contract,
@@ -392,7 +399,7 @@ async function checkBalances(chain) {
     USDT: USDTBalance,
     USDC: USDCBalance,
     DAI: DAIBalance,
-    WETH: WETHBalance,
+    /*  WETH: WETHBalance, */
   };
   return objs;
 }
@@ -434,4 +441,171 @@ async function withdrawStables(stable) {
     aToken,
     ethAmount
   );
+}
+
+async function bridge() {
+  let arr = await getAPYOPT;
+  let arr1 = await getAPYPOL;
+  let best = getHigApy(arr + arr1);
+  let targetchain = best[2];
+  let targetoken = best[1];
+
+  let currentBestStableBalances = await checkBalances(targetchain);
+
+  let currentchain = window.ethereum.chainId;
+}
+
+async function deposit1() {
+  let ethAmount = document.getElementById("ethAmount").value;
+  ethAmount = ethers.utils.parseEther(ethAmount);
+  let arr = await getAPYOPT;
+  let arr1 = await getAPYPOL;
+  let best = getHigApy(arr + arr1);
+  let targetchain = best[2];
+  let targetoken = best[1];
+  const provider = new ethers.providers.Web3Provider(window.ethereum);
+  const signer = provider.getSigner();
+  const contractDeposit = new ethers.Contract(
+    chainVariables[obj.targetChain].contract,
+    chainVariables[obj.targetChain].abi,
+    signer
+  );
+  let balance = await findSwapStables(
+    ethAmount,
+    obj.bestStable,
+    obj.targetChain
+  );
+  if (balance == true) {
+    if ((await chechAllowance(obj.targetChain, obj.bestStable)) == true) {
+      const transactionRespone = await contractDeposit.supplyFromToken(
+        ethAmount,
+        chainVariables[obj.targetChain][obj.bestStable],
+        chainVariables[obj.targetChain][obj.bestStable],
+        3000
+      );
+    } else {
+      await approve(obj.targetChain, obj.bestStable);
+      const transactionRespone = await contractDeposit.supplyFromToken(
+        ethAmount,
+        chainVariables[obj.targetChain][obj.bestStable],
+        chainVariables[obj.targetChain][obj.bestStable],
+        3000
+      );
+    }
+  } else if (balance == false) {
+    const accounts = await ethereum.request({ method: "eth_accounts" });
+    accounts[0];
+    let arrayOfChains = ["0x1", "0x89", "0xa"];
+    let newArrayWithoutCurrentChain = a.filter(function (f) {
+      return f !== obj.targetChain;
+    });
+    let balances = await findSwapStables(
+      ethAmount,
+      obj.bestStable,
+      arrayOfChains[1]
+    );
+    if (balances == true) {
+      await ethereum.request({
+        method: "wallet_switchEthereumChain",
+        params: [{ chainId: arrayOfChains[1] }],
+      });
+      await bridgeTxMetamask(
+        arrayOfChains[1],
+        obj.targetChain,
+        obj.bestStable,
+        obj.bestStable,
+        ethAmount,
+        accounts[0]
+      );
+      await ethereum.request({
+        method: "wallet_switchEthereumChain",
+        params: [{ chainId: obj.targetChain }],
+      });
+      if ((await chechAllowance(obj.targetChain, obj.bestStable)) == true) {
+        const transactionRespone = await contractDeposit.supplyFromToken(
+          ethAmount,
+          chainVariables[obj.targetChain][obj.bestStable],
+          chainVariables[obj.targetChain][obj.bestStable],
+          3000
+        );
+      } else {
+        await approve(obj.targetChain, obj.bestStable);
+        const transactionRespone = await contractDeposit.supplyFromToken(
+          ethAmount,
+          chainVariables[obj.targetChain][obj.bestStable],
+          chainVariables[obj.targetChain][obj.bestStable],
+          3000
+        );
+      }
+    } else {
+      await ethereum.request({
+        method: "wallet_switchEthereumChain",
+        params: [{ chainId: arrayOfChains[1] }],
+      });
+      await bridgeTxMetamask(
+        arrayOfChains[1],
+        obj.targetChain,
+        "USDC",
+        "USDC",
+        ethAmount,
+        accounts[0]
+      );
+      await ethereum.request({
+        method: "wallet_switchEthereumChain",
+        params: [{ chainId: obj.targetChain }],
+      });
+      if ((await chechAllowance(obj.targetChain, obj.bestStable)) == true) {
+        const transactionRespone = await contractDeposit.supplyFromToken(
+          ethAmount,
+          chainVariables[obj.targetChain][obj.bestStable],
+          balance,
+          3000
+        );
+      } else {
+        await approve(obj.targetChain, obj.bestStable);
+        const transactionRespone = await contractDeposit.supplyFromToken(
+          ethAmount,
+          chainVariables[obj.targetChain][obj.bestStable],
+          balance,
+          3000
+        );
+      }
+    }
+  }
+}
+
+async function bridgeTxMetamask(
+  fromChain,
+  toChain,
+  fromToken,
+  toToken,
+  amountFrom,
+  addressTo
+) {
+  // request information from synapse to form the transaction body
+  const query_string = `fromChain=${fromChain}&toChain=${toChain}&fromToken=${fromToken}&toToken=${toToken}&amountFrom=${amountFrom}&addressTo=${addressTo}`;
+  const response = await fetch(
+    `https://syn-api-dev.herokuapp.com/v1/generate_unsigned_bridge_txn?${query_string}`
+  );
+  const { unsigned_data, to, chainId, gasLimit } = await response.json();
+  // build transaction
+  const txParam = {
+    from: ethereum.selectedAddress, // user address
+    nonce: "0x00", // optional parameter
+    gasPrice: "0x09184e72a000", // optional parameter
+    gas: "0x2710", // String(gasLimit) / optional parameter
+    to: to, // bridge address
+    value: "0x00", // equals zero
+    data: unsigned_data, // transaction data
+    chainId: chainId, //bridge chainId
+  };
+  console.log(txParam);
+  // send transaction from MM
+  const txHash = await ethereum.request({
+    method: "eth_sendTransaction",
+    params: [txParam],
+  });
+}
+async function get() {
+  console.log(await findSwapStables(1000000, "USDT", "0x89"));
 }
